@@ -108,7 +108,7 @@ def remove_free_trial_cancels(data):
 # for paid students during their fist week
 def within_one_week(start_date, end_date):
     duration = end_date - start_date
-    return duration.days < 7
+    return duration.days < 7 and duration.days >= 0
 
 paid_engagements = remove_free_trial_cancels(daily_engagement)
 paid_engagements_first_week = []
@@ -158,3 +158,4 @@ max_minutes_account = get_key(account_minutes_dict, max_minutes)
 max_minutes_engagements = paid_engagements_dict[max_minutes_account]
 for engagement in max_minutes_engagements:
     print(engagement)
+
