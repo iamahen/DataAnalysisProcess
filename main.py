@@ -1,3 +1,4 @@
+from collections import defaultdict
 from csvProcessor import CsvProcessor
 
 file_enrollment = "data/enrollments.csv"
@@ -125,5 +126,7 @@ for engagement in paid_engagements_first_week:
         minutes_list = [engagement['total_minutes_visited']]
         paid_engagements_dict[engagement['account_key']] = minutes_list
     else:
-        paid_engagements_dict[engagement['account_key']] = minutes_list.append(engagement['total_minutes_visited'])
+        minutes_list.append(engagement['total_minutes_visited'])
+        paid_engagements_dict[engagement['account_key']] = minutes_list
 print(paid_engagements_dict)
+
