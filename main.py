@@ -119,14 +119,7 @@ for engagement in paid_engagements:
 print(len(paid_engagements_first_week))
 
 # Average minutes spent in classroom
-paid_engagements_dict = {}
+paid_engagements_dict = defaultdict(list)
 for engagement in paid_engagements_first_week:
-    minutes_list = paid_engagements_dict.get(engagement['account_key'], None)
-    if minutes_list == None:
-        minutes_list = [engagement['total_minutes_visited']]
-        paid_engagements_dict[engagement['account_key']] = minutes_list
-    else:
-        minutes_list.append(engagement['total_minutes_visited'])
-        paid_engagements_dict[engagement['account_key']] = minutes_list
+    paid_engagements_dict[engagement['account_key']].append(engagement['total_minutes_visited'])
 print(paid_engagements_dict)
-
