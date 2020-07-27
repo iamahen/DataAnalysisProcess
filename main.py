@@ -1,3 +1,4 @@
+import numpy as np
 from collections import defaultdict
 from csvProcessor import CsvProcessor
 
@@ -14,7 +15,7 @@ project_submissions = csv.read(file_project_submissions)
 attris = { 'join_date', 'cancel_date', 'days_to_cancel', 'is_udacity', 'is_canceled' }
 csv.data_type_process(enrollments, attris)
 
-attris = { 'utc_date' }
+attris = { 'utc_date', 'total_minutes_visited' }
 csv.data_type_process(daily_engagement, attris)
 
 # For each of these three tables, find the number of rows in the table and
@@ -121,5 +122,27 @@ print(len(paid_engagements_first_week))
 # Average minutes spent in classroom
 paid_engagements_dict = defaultdict(list)
 for engagement in paid_engagements_first_week:
-    paid_engagements_dict[engagement['account_key']].append(engagement['total_minutes_visited'])
-print(paid_engagements_dict)
+    paid_engagements_dict[engagement['account_key']].append(engagement)
+
+account_minutes_dict = {}
+for account_key, engagements in paid_engagements_dict.items():
+    total_minutes = 0;
+    for engagement in engagements:
+        total_minutes += engagement['total_minutes_visited']
+    account_minutes_dict[account_key] = total_minutes
+
+total_minutes_list = list(account_minutes_dict.values())
+avg_minutes = np.average(total_minutes_list)
+print(avg_minutes)
+
+mean_minutes = np.average(total_minutes_list)
+print(mean_minutes)
+
+sd_minutes = np.std(total_minutes_list)
+print(sd_minutes)
+
+min_minutes = np.min(total_minutes_list)
+print(min_minutes)
+
+max_minutes = np.max(total_minutes_list)
+print(max_minutes)

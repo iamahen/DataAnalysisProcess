@@ -4,6 +4,7 @@ class DataTypeProcessor:
     def __init__(self):
         self.set_date = {'join_date', 'cancel_date', 'utc_date'}
         self.set_integer = {'days_to_cancel'}
+        self.set_float = {'total_minutes_visited'}
         self.set_bool = {'is_udacity', 'is_canceled'}
 
     # Clean up the data types in ehrollment
@@ -19,6 +20,12 @@ class DataTypeProcessor:
         else:
             return int(value)
 
+    def __parse_float(self, value):
+        if value == '':
+            return None
+        else:
+            return float(value)
+
     def __parse_bool(self, tf):
         return tf == 'True'
 
@@ -29,5 +36,7 @@ class DataTypeProcessor:
                     data[attri] = self.__parse_date(data[attri])
                 if attri in self.set_integer:
                     data[attri] = self.__parse_integer(data[attri])
+                if attri in self.set_float:
+                    data[attri] = self.__parse_float(data[attri])
                 if attri in self.set_bool:
                     data[attri] = self.__parse_bool(data[attri])
