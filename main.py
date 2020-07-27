@@ -146,3 +146,15 @@ print(min_minutes)
 
 max_minutes = np.max(total_minutes_list)
 print(max_minutes)
+
+# Debugging Data Problems
+def get_key(dict, expected_val):
+    for key, value in dict.items():
+        if value == expected_val:
+            return key
+    return None
+
+max_minutes_account = get_key(account_minutes_dict, max_minutes)
+max_minutes_engagements = paid_engagements_dict[max_minutes_account]
+for engagement in max_minutes_engagements:
+    print(engagement)
