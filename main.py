@@ -208,11 +208,24 @@ for submission in paied_submissions:
             pass_subway_project_account.add(submission['account_key'])
 
 pass_engagements = []
-non_pass_engagements = []
+nonpass_engagements = []
 for engagement in paid_engagements_first_week:
     if engagement['account_key'] in pass_subway_project_account:
         pass_engagements.append(engagement)
     else:
-        non_pass_engagements.append(engagement)
+        nonpass_engagements.append(engagement)
 
-print("Passed/Non-passed: " + str(len(pass_engagements)) + "/" + str(len(non_pass_engagements)))
+print("Passed/Non-passed: " + str(len(pass_engagements)) + "/" + str(len(nonpass_engagements)))
+
+# Comparing the 2 group of students(passed, non-passed)
+account_pass_engagement_dict = get_group_data(pass_engagements, 'account_key')
+account_minutes_dict = get_sum(account_pass_engagement_dict,'total_minutes_visited')
+pass_minutes_list = list(account_minutes_dict.values());
+pass_avg_minutes = np.average(pass_minutes_list)
+
+account_nonpass_engagement_dict = get_group_data(nonpass_engagements, 'account_key')
+account_minutes_dict = get_sum(account_nonpass_engagement_dict,'total_minutes_visited')
+nonpass_minutes_list = list(account_minutes_dict.values());
+nonpass_avg_minutes = np.average(nonpass_minutes_list)
+
+print("Passed/Non-passed spend: " + str(pass_avg_minutes) + "/" + str(nonpass_avg_minutes) + "minutes.")
