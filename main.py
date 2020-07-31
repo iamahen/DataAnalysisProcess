@@ -1,6 +1,7 @@
 import numpy as np
 from collections import defaultdict
 from csvProcessor import CsvProcessor
+from showDAP import showHistogram
 
 file_enrollment = "data/enrollments.csv"
 file_daily_engagement = "data/daily_engagement.csv"
@@ -166,18 +167,20 @@ max_minutes_engagements = paid_engagements_dict[max_minutes_account]
 for submission in max_minutes_engagements:
     print(submission)
 
-# Average completed lessons in classroom
-paid_engagements_dict = get_group_data(paid_engagements_first_week, 'account_key')
-account_completed_lessons_dict = get_sum(paid_engagements_dict, 'lessons_completed')
 
-total_completed_lessons_list = list(account_completed_lessons_dict.values())
-avg_completed_lessons = np.average(total_completed_lessons_list)
-sd_completed_lessons = np.std(total_completed_lessons_list)
-min_completed_lessons = np.min(total_completed_lessons_list)
-max_completed_lessons = np.max(total_completed_lessons_list)
-print("Completed lessons(Average/SD/Min/Max): " \
-      + str(avg_completed_lessons) + " / " + str(sd_completed_lessons) + " / " \
-      + str(min_completed_lessons) + " / " + str(max_completed_lessons))
+def data_description(data, note):
+    print(note)
+    print("Mean: " + str(np.average(data)))
+    print("SD: " + str(np.std(data)))
+    print("Min: " + str(np.min(data)))
+    print("Max: " + str(np.max(data)))
+    showHistogram(data, note)
+
+paid_engagements_dict = get_group_data(paid_engagements_first_week, 'account_key')
+
+# Average completed lessons in classroom
+account_completed_lessons_dict = get_sum(paid_engagements_dict, 'lessons_completed')
+data_description(list(account_completed_lessons_dict.values()), "Completed lessons")
 
 # Analyzing 'num_courses_visited'
 for account_key, engagements in paid_engagements_dict.items():
@@ -185,15 +188,7 @@ for account_key, engagements in paid_engagements_dict.items():
         submission['has_visited'] = int(bool(submission['num_courses_visited']))
 
 account_visited_days_dict = get_sum(paid_engagements_dict, 'has_visited')
-
-total_visited_days_list = list(account_visited_days_dict.values())
-avg_visited_days = np.average(total_visited_days_list)
-sd_visited_days = np.std(total_visited_days_list)
-min_visited_days = np.min(total_visited_days_list)
-max_visited_days = np.max(total_visited_days_list)
-print("Visited days(Average/SD/Min/Max): " \
-      + str(avg_visited_days) + " / " + str(sd_visited_days) + " / " \
-      + str(min_visited_days) + " / " + str(max_visited_days))
+data_description(list(account_visited_days_dict.values()), "Visited days")
 
 # Spliting out passing students of 'subway project'
 paied_submissions = remove_free_trial_cancels(project_submissions)
@@ -218,14 +213,23 @@ for engagement in paid_engagements_first_week:
 print("Passed/Non-passed: " + str(len(pass_engagements)) + "/" + str(len(nonpass_engagements)))
 
 # Comparing the 2 group of students(passed, non-passed)
-account_pass_engagement_dict = get_group_data(pass_engagements, 'account_key')
-account_minutes_dict = get_sum(account_pass_engagement_dict,'total_minutes_visited')
-pass_minutes_list = list(account_minutes_dict.values());
-pass_avg_minutes = np.average(pass_minutes_list)
+def get_account_attrisum_list(data, attri):
+    account_pass_engagement_dict = get_group_data(data, 'account_key')
+    account_minutes_dict = get_sum(account_pass_engagement_dict, attri)
+    return list(account_minutes_dict.values())
 
-account_nonpass_engagement_dict = get_group_data(nonpass_engagements, 'account_key')
-account_minutes_dict = get_sum(account_nonpass_engagement_dict,'total_minutes_visited')
-nonpass_minutes_list = list(account_minutes_dict.values());
-nonpass_avg_minutes = np.average(nonpass_minutes_list)
+pass_minutes_list = get_account_attrisum_list(pass_engagements,'total_minutes_visited')
+data_description(pass_minutes_list, "Pass on total minutes")
+nonpass_minutes_list = get_account_attrisum_list(nonpass_engagements, 'total_minutes_visited');
+data_description(nonpass_minutes_list, "Non-pass on total minutes")
 
-print("Passed/Non-passed spend: " + str(pass_avg_minutes) + "/" + str(nonpass_avg_minutes) + "minutes.")
+pass_completed_lessons_list = get_account_attrisum_list(pass_engagements,'lessons_completed')
+data_description(pass_completed_lessons_list, "Pass on completed lessons")
+nonpass_completed_lessons_list = get_account_attrisum_list(nonpass_engagements, 'lessons_completed');
+data_description(nonpass_completed_lessons_list, "Non-pass on completed lessons")
+
+pass_visited_days_list = get_account_attrisum_list(pass_engagements,'has_visited')
+data_description(pass_visited_days_list, "Pass on visited days")
+nonpass_visited_days_list = get_account_attrisum_list(nonpass_engagements, 'has_visited');
+data_description(nonpass_visited_days_list, "Non-pass on visited days")
+
