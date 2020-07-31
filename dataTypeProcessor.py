@@ -4,7 +4,7 @@ class DataTypeProcessor:
     def __init__(self):
         self.set_date = {'join_date', 'cancel_date', 'utc_date'}
         self.set_integer = {'days_to_cancel'}
-        self.set_float = {'total_minutes_visited'}
+        self.set_float = {'total_minutes_visited', 'lessons_completed', 'num_courses_visited'}
         self.set_bool = {'is_udacity', 'is_canceled'}
 
     # Clean up the data types in ehrollment

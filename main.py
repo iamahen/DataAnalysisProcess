@@ -15,7 +15,7 @@ project_submissions = csv.read(file_project_submissions)
 attris = { 'join_date', 'cancel_date', 'days_to_cancel', 'is_udacity', 'is_canceled' }
 csv.data_type_process(enrollments, attris)
 
-attris = { 'utc_date', 'total_minutes_visited' }
+attris = { 'utc_date', 'total_minutes_visited', 'lessons_completed', 'num_courses_visited' }
 csv.data_type_process(daily_engagement, attris)
 
 # For each of these three tables, find the number of rows in the table and
@@ -120,16 +120,23 @@ for engagement in paid_engagements:
 print(len(paid_engagements_first_week))
 
 # Average minutes spent in classroom
-paid_engagements_dict = defaultdict(list)
-for engagement in paid_engagements_first_week:
-    paid_engagements_dict[engagement['account_key']].append(engagement)
+def get_group_data(data, key):
+    ret_data = defaultdict(list)
+    for engagement in data:
+        ret_data[engagement[key]].append(engagement)
+    return ret_data
 
-account_minutes_dict = {}
-for account_key, engagements in paid_engagements_dict.items():
-    total_minutes = 0;
-    for engagement in engagements:
-        total_minutes += engagement['total_minutes_visited']
-    account_minutes_dict[account_key] = total_minutes
+def get_sum(grouped_data, key):
+    account_minutes_dict = {}
+    for account_key, engagements in grouped_data.items():
+        total_minutes = 0;
+        for engagement in engagements:
+            total_minutes += engagement[key]
+        account_minutes_dict[account_key] = total_minutes
+    return account_minutes_dict
+
+paid_engagements_dict = get_group_data(paid_engagements_first_week, 'account_key')
+account_minutes_dict = get_sum(paid_engagements_dict, 'total_minutes_visited')
 
 total_minutes_list = list(account_minutes_dict.values())
 avg_minutes = np.average(total_minutes_list)
@@ -159,3 +166,31 @@ max_minutes_engagements = paid_engagements_dict[max_minutes_account]
 for engagement in max_minutes_engagements:
     print(engagement)
 
+# Average completed lessons in classroom
+paid_engagements_dict = get_group_data(paid_engagements_first_week, 'account_key')
+account_completed_lessons_dict = get_sum(paid_engagements_dict, 'lessons_completed')
+
+total_completed_lessons_list = list(account_completed_lessons_dict.values())
+avg_completed_lessons = np.average(total_completed_lessons_list)
+sd_completed_lessons = np.std(total_completed_lessons_list)
+min_completed_lessons = np.min(total_completed_lessons_list)
+max_completed_lessons = np.max(total_completed_lessons_list)
+print("Completed lessons(Average/SD/Min/Max): " \
+      + str(avg_completed_lessons) + " / " + str(sd_completed_lessons) + " / " \
+      + str(min_completed_lessons) + " / " + str(max_completed_lessons))
+
+# Analyzing 'num_courses_visited'
+for account_key, engagements in paid_engagements_dict.items():
+    for engagement in engagements:
+        engagement['has_visited'] = int(bool(engagement['num_courses_visited']))
+
+account_visited_days_dict = get_sum(paid_engagements_dict, 'has_visited')
+
+total_visited_days_list = list(account_visited_days_dict.values())
+avg_visited_days = np.average(total_visited_days_list)
+sd_visited_days = np.std(total_visited_days_list)
+min_visited_days = np.min(total_visited_days_list)
+max_visited_days = np.max(total_visited_days_list)
+print("Visited days(Average/SD/Min/Max): " \
+      + str(avg_visited_days) + " / " + str(sd_visited_days) + " / " \
+      + str(min_visited_days) + " / " + str(max_visited_days))
