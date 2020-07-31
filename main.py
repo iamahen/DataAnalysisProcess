@@ -112,11 +112,11 @@ def within_one_week(start_date, end_date):
 
 paid_engagements = remove_free_trial_cancels(daily_engagement)
 paid_engagements_first_week = []
-for engagement in paid_engagements:
-    student_id = engagement['account_key']
-    is_valid = within_one_week(paid_student[student_id], engagement['utc_date'])
+for submission in paid_engagements:
+    student_id = submission['account_key']
+    is_valid = within_one_week(paid_student[student_id], submission['utc_date'])
     if is_valid:
-        paid_engagements_first_week.append(engagement)
+        paid_engagements_first_week.append(submission)
 print(len(paid_engagements_first_week))
 
 # Average minutes spent in classroom
@@ -163,8 +163,8 @@ def get_key(dict, expected_val):
 
 max_minutes_account = get_key(account_minutes_dict, max_minutes)
 max_minutes_engagements = paid_engagements_dict[max_minutes_account]
-for engagement in max_minutes_engagements:
-    print(engagement)
+for submission in max_minutes_engagements:
+    print(submission)
 
 # Average completed lessons in classroom
 paid_engagements_dict = get_group_data(paid_engagements_first_week, 'account_key')
@@ -181,8 +181,8 @@ print("Completed lessons(Average/SD/Min/Max): " \
 
 # Analyzing 'num_courses_visited'
 for account_key, engagements in paid_engagements_dict.items():
-    for engagement in engagements:
-        engagement['has_visited'] = int(bool(engagement['num_courses_visited']))
+    for submission in engagements:
+        submission['has_visited'] = int(bool(submission['num_courses_visited']))
 
 account_visited_days_dict = get_sum(paid_engagements_dict, 'has_visited')
 
@@ -194,3 +194,25 @@ max_visited_days = np.max(total_visited_days_list)
 print("Visited days(Average/SD/Min/Max): " \
       + str(avg_visited_days) + " / " + str(sd_visited_days) + " / " \
       + str(min_visited_days) + " / " + str(max_visited_days))
+
+# Spliting out passing students of 'subway project'
+paied_submissions = remove_free_trial_cancels(project_submissions)
+
+subway_project_keys = ['746169184', '3176718735']
+pass_subway_project_account = set()
+for submission in paied_submissions:
+    project = submission['lesson_key']
+    rating = submission['assigned_rating']
+    if project in subway_project_keys \
+        and (rating == 'PASSED' or rating == 'DISTINCTION'):
+            pass_subway_project_account.add(submission['account_key'])
+
+pass_engagements = []
+non_pass_engagements = []
+for engagement in paid_engagements_first_week:
+    if engagement['account_key'] in pass_subway_project_account:
+        pass_engagements.append(engagement)
+    else:
+        non_pass_engagements.append(engagement)
+
+print("Passed/Non-passed: " + str(len(pass_engagements)) + "/" + str(len(non_pass_engagements)))
